@@ -1,9 +1,6 @@
 import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
 import { CheckIcon } from './components/CheckIcon'
-import { CrossIcon } from './components/CrossIcon'
 
 type Player = {
   name: string
@@ -15,7 +12,6 @@ type MomentState = 'prediction' | 'result';
 
 function App() {
   const [players, setPlayers] = useState<Player[]>([])
-  const [rounds, setRounds] = useState(1)
   const [moment, setMoment] = useState<MomentState>('prediction');
   const defaultPlayer = {name: 'Jugador JAVO', prediction: 0, score: 0};
 
@@ -42,6 +38,12 @@ function App() {
       setMoment('result')
     } else {
       setMoment('prediction')
+      const restartedPlayersPredictions = players.map(player => {
+        player.prediction = 0;
+        return player;
+      })
+
+      setPlayers(restartedPlayersPredictions)
     }
   }
 
@@ -52,14 +54,21 @@ function App() {
       setPlayers([...players])
     }
   }
+  const editName = (player: Player) => {
+    return (event: React.ChangeEvent<HTMLInputElement>) => {
+      player.name = event.target.value;
+      setPlayers([...players])
+    }
+  }
 
   return (
     <>
 
       <h1>1-3-5 Moderno</h1>
-      <h2> Ronda: {rounds}</h2>
       <button onClick={addPlayer}> Agregar jugador</button>
-      
+      <br></br>
+      <hr></hr>
+      <br></br>
       <div>
         <div className='table-container'>
           <div>
@@ -72,9 +81,9 @@ function App() {
         </div>
         {players.map(player =>  {
           return(
-            <div>
-              <input type="text" value={player.name} />
-              <input type="number" value={player.prediction} />
+            <div className='row'>
+              <input type="text" value={player.name} onChange={editName(player)}/>
+              <div className='input-prediction'> {player.prediction} </div>
               { moment === 'prediction' ? 
                 <>                
                   <button onClick={sumPlayerPrediction(player)}> + </button>
@@ -83,7 +92,6 @@ function App() {
               : 
                   <>
                   <div className='button-check' onClick={sumScore(player)}> <CheckIcon /> </div>
-                  <div className='button-cross' ><CrossIcon/> </div>
                 </>
               }
             
